@@ -45,7 +45,7 @@ public:
     void setMode(Mode mode);
     void setColor(std::string color);
     std::string classifyColor(cv::Vec3b hsv);
-    bool isDominantColor(cv::Mat& frame, int x1, int x2);
+    bool isDominantColor(cv::Mat& frame, int x1, int x2, int y1);
     void update();
     bool getSuccess() const;
 };

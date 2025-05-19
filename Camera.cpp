@@ -86,11 +86,11 @@ std::string Camera::classifyColor(cv::Vec3b hsv) { //new
 	return "unknown";
 }
 
-bool Camera::isDominantColor(cv::Mat& frame, int x1, int x2) { //new
+bool Camera::isDominantColor(cv::Mat& frame, int x1, int x2, int y1) { //new
 	if (frame.empty() || x1 >= x2 || x1 < 0 || x2 > frame.cols)
 		return false;
 
-	Rect roi(x1, 0, x2 - x1, frame.rows*ROI_RATIO);
+	Rect roi(x1, y1, x2 - x1, (frame.rows-y1)*ROI_RATIO);
 	Mat region = frame(roi);
 
 	// تبدیل به HSV برای دسته‌بندی بهتر رنگ
@@ -127,7 +127,7 @@ void Camera::update() {
     switch (currentTask) {
         case TURN_ON:
             if (!cap.isOpened()) {
-                cap.open(1);  // باز کردن وبکم پیشفرض10 -> 0
+                cap.open(0);  // باز کردن وبکم پیشفرض10 -> 0
                 if (!cap.isOpened()) {
                     cerr << "Error: Cannot open camera\n";
                 } else {
@@ -137,7 +137,7 @@ void Camera::update() {
             }
             break;
 
-        case FACE_DETECTION:
+        case FACE_DETECTION: {
             if (!cap.isOpened()) {
                 cerr << "Camera is not opened!\n";
                 break;
@@ -198,7 +198,7 @@ void Camera::update() {
                         putText(frame, label, Point(x1, y1 - 10),
                                 FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
                     } else {
-                        if(isDominantColor(frame, x1, x2)) {
+                        if(isDominantColor(frame, x1, x2, y1)) {
                             //here
                             this->setColor(this->dominantColor);
                             this->success = true;
@@ -217,6 +217,7 @@ void Camera::update() {
                 break;
             }
             break; //here
+		}
 
         case ADVANCED_FACE_DETECTION:
             cout << "Running Advanced Face Detection...\n";
