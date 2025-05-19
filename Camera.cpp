@@ -3,7 +3,7 @@
 #include <string>
 
 #define CONFIDENCE_THRESHOLD 0.7
-#define CLOTH_THRESHOLD 0.5
+#define CLOTH_THRESHOLD 0.7
 #define ROI_RATIO 1/2
 
 using namespace cv;

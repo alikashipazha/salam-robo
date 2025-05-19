@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include "Camera.h"
 #include "Monitor.h"
 
@@ -11,6 +12,7 @@ int main() {
     while (true) {
         cam.update();
 		if(cam.getSuccess()) {
+			cout << cam.getSuccess() << endl;
 			// مسیر پوشه ویدیو و فایل ویدیو
 			string videosDir = "/home/salam-robo/test/video";
 			string videoFile = videosDir + "/first.mp4";
@@ -33,6 +35,7 @@ int main() {
 
 				this_thread::sleep_for(chrono::milliseconds(500));
 			}
+			cam.setTask(Camera::Task::FACE_DETECTION);
 		}
         // خروج با کلید ESC
         if (cv::waitKey(1) == 27) {
