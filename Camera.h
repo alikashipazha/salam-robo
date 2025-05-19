@@ -6,6 +6,9 @@
 #include <vector>
 #include <string>
 
+using namespace cv;
+using namespace std;
+
 class Camera {
 public:
     enum Task {
@@ -30,18 +33,19 @@ private:
     std::vector<std::string> ageList;
     std::vector<std::string> genderList;
     cv::VideoCapture cap;
-    string dominantColor;
+    std::string dominantColor;
+    std::string color;
 
 public:
     Camera();
     Camera::Task getTask() const;
     Camera::Mode getMode() const;
-    string getColor() const;
+    std::string getColor() const;
     void setTask(Task t);
-    void setMode(Mode mdoe);
-    void setColor(string color);
-    string classifyColor(Vec3b hsv);
-    bool isDominantColor(cv::Mat& frame, int x1, int x2, double threshold = 0.7);
+    void setMode(Mode mode);
+    void setColor(std::string color);
+    std::string classifyColor(cv::Vec3b hsv);
+    bool isDominantColor(cv::Mat& frame, int x1, int x2);
     void update();
     bool getSuccess() const;
 };

@@ -10,12 +10,12 @@ using namespace cv;
 using namespace std;
 
 Camera::Camera() : currentTask(IDLE) {
-    string faceProto = "face_detector/opencv_face_detector.pbtxt";
-    string faceModel = "face_detector/opencv_face_detector_uint8.pb";
-    string ageProto = "age_detector/deploy_age.prototxt";
-    string ageModel = "age_detector/age_net.caffemodel";
-    string genderProto = "gender_detector/deploy_gender.prototxt";
-    string genderModel = "gender_detector/gender_net.caffemodel";
+    std::string faceProto = "face_detector/opencv_face_detector.pbtxt";
+    std::string faceModel = "face_detector/opencv_face_detector_uint8.pb";
+    std::string ageProto = "age_detector/deploy_age.prototxt";
+    std::string ageModel = "age_detector/age_net.caffemodel";
+    std::string genderProto = "gender_detector/deploy_gender.prototxt";
+    std::string genderModel = "gender_detector/gender_net.caffemodel";
 
     faceNet = dnn::readNetFromTensorflow(faceModel, faceProto);
     ageNet = dnn::readNetFromCaffe(ageProto, ageModel);
@@ -36,7 +36,7 @@ Camera::Mode Camera::getMode() const {
     return currentMode;
 }
 
-string Camera::getColor() const {
+std::string Camera::getColor() const {
     return this->color;
 }
 
@@ -49,11 +49,11 @@ void Camera::setMode(Mode mode) {
     currentMode = mode;
 }
 
-void Camera::setColor(string color){
+void Camera::setColor(std::string color){
     this->color = color;
 }
 
-string classifyColor(Vec3b hsv) { //new
+std::string Camera::classifyColor(cv::Vec3b hsv) { //new
 	int h = hsv[0]; // hue: 0-179
 	int s = hsv[1]; // saturation: 0-255
 	int v = hsv[2]; // value (brightness): 0-255
@@ -86,7 +86,7 @@ string classifyColor(Vec3b hsv) { //new
 	return "unknown";
 }
 
-bool isDominantColor(cv::Mat& frame, int x1, int x2, double threshold = CLOTH_THRESHOLD) { //new
+bool Camera::isDominantColor(cv::Mat& frame, int x1, int x2) { //new
 	if (frame.empty() || x1 >= x2 || x1 < 0 || x2 > frame.cols)
 		return false;
 
@@ -120,7 +120,7 @@ bool isDominantColor(cv::Mat& frame, int x1, int x2, double threshold = CLOTH_TH
 
 	double ratio = static_cast<double>(maxCount) / totalPixels;
 	cout << "Dominant color: " << this->dominantColor << " - " << ratio * 100 << "% of ROI" << endl;
-	return ratio >= threshold;
+	return ratio >= CLOTH_THRESHOLD;
 }
 
 void Camera::update() {
@@ -216,6 +216,7 @@ void Camera::update() {
                 }
                 break;
             }
+            break; //here
 
         case ADVANCED_FACE_DETECTION:
             cout << "Running Advanced Face Detection...\n";
