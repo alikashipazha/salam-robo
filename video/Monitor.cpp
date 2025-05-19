@@ -69,7 +69,9 @@ void Monitor::startPlayback() {
     if (currentVideo.empty()) return;
 
     // دستور پخش با omxplayer، PID پروسس رو بگیر
-    string command = "omxplayer -o local \"" + currentVideo + "\" & echo $!";
+	string command = "mpv --no-terminal --audio-device=alsa/default --really-quiet --fullscreen \"" + currentVideo + "\" & echo $!";
+
+
 
     FILE* pipe = popen(command.c_str(), "r");
     if (!pipe) {
