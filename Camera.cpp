@@ -1,5 +1,6 @@
 #include "Camera.h"
 #include <iostream>
+#include <string>
 
 #define CONFIDENCE_THRESHOLD 0.7
 #define CLOTH_THRESHOLD 0.5
