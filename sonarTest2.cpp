@@ -1,6 +1,6 @@
 #include <iostream>
 #include <wiringPi.h>
-#include "Sonar.h"
+#include "Sonar2.h"
 
 int main() {
     if (wiringPiSetupGpio() == -1) {
@@ -8,22 +8,20 @@ int main() {
         return 1;
     }
 
-    Sonar sonar(17, 27); // GPIO17 -> success, GPIO27 -> fail
+    Sonar2 sonar(17, 27); // GPIO17 -> success, GPIO27 -> fail
 
     std::cout << "شروع تست سنسور Sonar..." << std::endl;
 
     while (true) {
-        sonar.update();
+        // sonar.update();
 
         if (sonar.getSuccess()) {
-            std::cout << "✅ سیگنال موفقیت دریافت شد." << std::endl;
+            std::cout << "success" << std::endl;
         } else if (sonar.getFail()) {
-            std::cout << "❌ سیگنال شکست دریافت شد." << std::endl;
-        } else {
-            std::cout << "⏳ هیچ سیگنالی دریافت نشده." << std::endl;
+            std::cout << "fail" << std::endl;
         }
 
-        delay(200); // صبر 200 میلی‌ثانیه برای کاهش سرعت چاپ
+        delay(10); // صبر 200 میلی‌ثانیه برای کاهش سرعت چاپ
     }
 
     return 0;
