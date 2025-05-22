@@ -14,7 +14,7 @@ int main() {
 
     Sonar2 sonar(17, 27);
     Camera camera;
-    Monitor monitor("/path/to/videos", "/path/to/audios");
+    Monitor monitor("/home/salam-robo/test/assemble", "/home/salam-robo/test/assemble");
     FSM fsm;
 
     std::thread cameraThread([&]() {
@@ -40,7 +40,7 @@ int main() {
 
     // اینجا میتونی شرط توقف بذاری، الان برنامه بی‌نهایت اجرا میشه
     while (true) {
-        std::this_thread::sleep_for(std::chrono::seconds(60));
+        std::this_thread::sleep_for(std::chrono::seconds(3));
     }
 
     // running.store(false);

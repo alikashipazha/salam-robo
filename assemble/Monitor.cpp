@@ -2,8 +2,9 @@
 
 using namespace std;
 
-Monitor::Monitor(const string& videosDir)
+Monitor::Monitor(const string& videosDir, const string& audiosDir)
     : videosDirectory(videosDir),
+	  audiosDirectory(audiosDir),
       currentStream(""),
       currentTask(Task::IDLE),
       streamFinished(false),
