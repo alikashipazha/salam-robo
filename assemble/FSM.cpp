@@ -40,7 +40,7 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
                 monitor.setTask(Monitor::Task::PLAY);
             }
             if(sonar.getSuccess()) {
-                camera.setTask(Camera::Mode::CLOSE_UP);
+                camera.setMode(Camera::Mode::CLOSE_UP);
                 // sonar.setFailTimer(2.0);
                 setStateMachine(FACE_DETECTION);
             }
@@ -61,25 +61,25 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
             break;
 
         case ADVANCED_FACE_DETECTION: // ignore this state
-            stateTimerUpdate();
-            if(camera.getSuccess() || watchdog(4000)) {
-                string cd = monitor.getVideosDirectory() + '/' + camera.getGender() + '/' + camera.getCloth();
-                monitor.setVideo(cd);
-                monitor.setTask(Monitor::Task::PLAY);
-                currentState = PLAY_VIDEO_FILE;
-            }
+            // stateTimerUpdate();
+            // if(camera.getSuccess() || watchdog(4000)) {
+            //     // string cd = monitor.getVideosDirectory() + '/' + camera.getGender() + '/' + camera.getCloth();
+            //     // monitor.setVideo(cd);
+            //     monitor.setTask(Monitor::Task::PLAY);
+            //     currentState = PLAY_VIDEO_FILE;
+            // }
             break;
 
         case PLAY_VIDEO_FILE:
             stateTimerUpdate();
-            if(sonar.getFail() || monitor.getVideoFinished() || watchdog(60000)) { // HERE: cam condition?
+            if(sonar.getFail() || monitor.getStreamFinished() || watchdog(60000)) { // HERE: cam condition?
                 setStateMachine(BYE);
             }
             break;
 
         case BYE:
             stateTimerUpdate();
-            if(monitor.getVideoFinished() || watchdog(60000)) // ignore this if condition for now
+            if(monitor.getStreamFinished() || watchdog(60000)) // ignore this if condition for now
                 setStateMachine(SONAR_DETECTION);
             break;
     }
