@@ -4,26 +4,30 @@ using namespace std;
 
 Monitor::Monitor(const string& videosDir)
     : videosDirectory(videosDir),
-      currentVideo(""),
+      currentStream(""),
       currentTask(Task::IDLE),
-      videoFinished(false),
+      streamFinished(false),
       playerPid(-1),
-      videoStartTime(0) {}
+      streamStartTime(0) {}
 
 string Monitor::getVideosDirectory() const {
     return videosDirectory;
 }
 
-void Monitor::setVideo(const string& videoPath) {
-    currentVideo = videoPath;
-    videoFinished = false;
+string Monitor::getAudiosDirectory() const {
+    return audiosDirectory;
+}
+
+void Monitor::setStream(const string& streamPath) {
+    currentStream = streamPath;
+    streamFinished = false;
     // زمان شروع وقتی واقعا پخش کردیم تنظیم میشه
 }
 
 void Monitor::setTask(Task task) {
-    if (task == Task::PLAY_VIDEO && currentTask != Task::PLAY_VIDEO) {
+    if (task == Task::PLAY && currentTask != Task::PLAY) {
         startPlayback();
-    } else if (task == Task::STOP_VIDEO && currentTask == Task::PLAY_VIDEO) {
+    } else if (task == Task::STOP && currentTask == Task::PLAY) {
         stopPlayback();
         currentTask = Task::IDLE; // همینجا حالت رو IDLE کن
         return;
@@ -31,23 +35,27 @@ void Monitor::setTask(Task task) {
     currentTask = task;
 }
 
-bool Monitor::getVideoFinished() {
-    if (currentTask == Task::PLAY_VIDEO) {
+bool Monitor::getStreamFinished() {
+    if (currentTask == Task::PLAY) {
         if (playerPid > 0) {
             // بررسی اینکه آیا فرآیند هنوز وجود داره یا نه
             int ret = kill(playerPid, 0);
             if (ret == -1) {
                 // پروسس وجود نداره، یعنی تموم شده
-                videoFinished = true;
+                streamFinished = true;
                 currentTask = Task::IDLE;
                 playerPid = -1;
             }
         } else {
-            videoFinished = true;
+            streamFinished = true;
             currentTask = Task::IDLE;
         }
     }
-    return videoFinished;
+    return streamFinished;
+}
+
+void Monitor::setMode(Mode mode) {
+    this->currentMode = mode;
 }
 
 void Monitor::update() {
@@ -55,10 +63,10 @@ void Monitor::update() {
         case Task::IDLE:
             // کاری نمی‌کنیم
             break;
-        case Task::PLAY_VIDEO:
-            getVideoFinished(); // آپدیت وضعیت ویدیو
+        case Task::PLAY:
+            getStreamFinished(); // آپدیت وضعیت ویدیو
             break;
-        case Task::STOP_VIDEO:
+        case Task::STOP:
             stopPlayback();
             currentTask = Task::IDLE;
             break;
@@ -66,16 +74,20 @@ void Monitor::update() {
 }
 
 void Monitor::startPlayback() {
-    if (currentVideo.empty()) return;
+    if (currentStream.empty()) return;
 
-    // دستور پخش با omxplayer، PID پروسس رو بگیر
-	string command = "mpv --no-terminal --audio-device=alsa/default --really-quiet --fullscreen \"" + currentVideo + "\" & echo $!";
-
+    string command;
+    if(this->currentMode == VIDEO) {
+        // دستور پخش با omxplayer، PID پروسس رو بگیر
+        command = "mpv --no-terminal --audio-device=alsa/default --really-quiet --fullscreen \"" + this->currentStream + "\" & echo $!";
+    } else {
+        command = "mpv --no-video --really-quiet \"" + this->currentStream + "\" & echo $!";
+    }
 
 
     FILE* pipe = popen(command.c_str(), "r");
     if (!pipe) {
-        videoFinished = true;
+        streamFinished = true;
         return;
     }
 
@@ -91,8 +103,8 @@ void Monitor::startPlayback() {
     }
     pclose(pipe);
 
-    videoFinished = false;
-    videoStartTime = millis();
+    streamFinished = false;
+    streamStartTime = millis();
 }
 
 void Monitor::stopPlayback() {
@@ -100,7 +112,7 @@ void Monitor::stopPlayback() {
         kill(playerPid, SIGTERM);
         playerPid = -1;
     }
-    videoFinished = true;
+    streamFinished = true;
 }
 
 unsigned long Monitor::millis() {

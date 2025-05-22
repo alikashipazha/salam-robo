@@ -12,29 +12,38 @@ using namespace std;
 
 class Monitor {
 public:
-    enum class Task {
+    enum Task {
         IDLE,
-        PLAY_VIDEO,
-        STOP_VIDEO,
+        PLAY,
+        STOP,
+    };
+
+    enum Mode {
+        VIDEO,
+        AUDIO
     };
 
 private:
     string videosDirectory;
-    string currentVideo;
+    string audiosDirectory;
+    string currentStream;
     Task currentTask;
-    bool videoFinished;
+    Mode currentMode;
+    bool streamFinished;
 
     pid_t playerPid;  // PID فرآیند پلیر
-    unsigned long videoStartTime; // زمان شروع پخش
+    unsigned long streamStartTime; // زمان شروع پخش
 
 public:
     explicit Monitor(const string& videosDir);
 
     string getVideosDirectory() const;
+    string getAudiosDirectory() const;
 
-    void setVideo(const string& videoPath);
+    void setStream(const string& streamPath);
     void setTask(Task task);
-    bool getVideoFinished();
+    bool getStreamFinished();
+    void setMode(Mode mode);
 
     void update();
 

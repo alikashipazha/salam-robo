@@ -25,6 +25,7 @@ public:
 
 private:
     Task currentTask;
+    Task nextState;
     Mode currentMode;
     bool success = false;
     cv::dnn::Net faceNet;
@@ -35,6 +36,7 @@ private:
     cv::VideoCapture cap;
     std::string dominantColor;
     std::string color;
+    std::chrono::steady_clock::time_point idleStartTime;
 
 public:
     Camera();
@@ -44,6 +46,8 @@ public:
     void setTask(Task t);
     void setMode(Mode mode);
     void setColor(std::string color);
+    void setTimer();
+    void setNextTask(Task nextTask);
     std::string classifyColor(cv::Vec3b hsv);
     bool isDominantColor(cv::Mat& frame, int x1, int x2, int y1);
     void update();

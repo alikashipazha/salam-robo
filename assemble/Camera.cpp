@@ -53,6 +53,14 @@ void Camera::setColor(std::string color){
     this->color = color;
 }
 
+void setTimer() {
+    idleStartTime = std::chrono::steady_clock::now();
+}
+
+void setNextTask(Task nextTask) {
+    this->nextTask = nextTask;
+}
+
 std::string Camera::classifyColor(cv::Vec3b hsv) { //new
 	int h = hsv[0]; // hue: 0-179
 	int s = hsv[1]; // saturation: 0-255
@@ -230,10 +238,15 @@ void Camera::update() {
                 destroyAllWindows();
                 cout << "Camera released and windows destroyed.\n";
             }
-            this->setTask(IDLE);
+            // this->setTask(IDLE);
             break;
 
         case IDLE:
+            //CHAT you have to set non-blocking timer so that after it's finished Task goes back to FACE_DETECTION
+            auto now = std::chrono::steady_clock::now();
+            auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - idleStartTime).count();
+            if (elapsed >= 10)
+                this->setTask(this->nextTask);
             break;
     }
 }
