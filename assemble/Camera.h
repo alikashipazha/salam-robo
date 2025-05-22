@@ -25,7 +25,7 @@ public:
 
 private:
     Task currentTask;
-    Task nextState;
+    Task nextTask;
     Mode currentMode;
     bool success = false;
     cv::dnn::Net faceNet;
@@ -37,6 +37,8 @@ private:
     std::string dominantColor;
     std::string color;
     std::chrono::steady_clock::time_point idleStartTime;
+    std::string gender;
+    std::string age;
 
 public:
     Camera();
@@ -52,6 +54,8 @@ public:
     bool isDominantColor(cv::Mat& frame, int x1, int x2, int y1);
     void update();
     bool getSuccess() const;
+    string getGender() const;
+    string getAge() const;
 };
 
 #endif // CAMERA_H

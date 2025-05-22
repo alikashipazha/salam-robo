@@ -35,7 +35,7 @@ private:
     unsigned long streamStartTime; // زمان شروع پخش
 
 public:
-    explicit Monitor(const string& videosDir);
+    explicit Monitor(const string& videosDir, const string& audiosDir);
 
     string getVideosDirectory() const;
     string getAudiosDirectory() const;

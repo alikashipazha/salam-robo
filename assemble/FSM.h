@@ -31,7 +31,7 @@ public:
     bool watchdog(unsigned int watchdogTimer);
     void stateTimerUpdate();
 
-    void update(const Sonar2& sonar, const Camera& camera, const Monitor& monitor);
+    void update(const Sonar2& sonar, Camera& camera, Monitor& monitor);
 
     void printState();
     State getState();

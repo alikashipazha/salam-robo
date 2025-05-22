@@ -28,7 +28,7 @@ void FSM::stateTimerUpdate() {
     stateTimer = millis() - stateStartTimer;
 }
 
-void FSM::update(const Sonar2& sonar, const Camera& camera, const Monitor& monitor) {
+void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
     switch(currentState) {
         case SONAR_DETECTION:
             if(camera.getSuccess()) {

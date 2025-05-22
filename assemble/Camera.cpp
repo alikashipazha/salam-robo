@@ -53,11 +53,11 @@ void Camera::setColor(std::string color){
     this->color = color;
 }
 
-void setTimer() {
+void Camera::setTimer() {
     idleStartTime = std::chrono::steady_clock::now();
 }
 
-void setNextTask(Task nextTask) {
+void Camera::setNextTask(Task nextTask) {
     this->nextTask = nextTask;
 }
 
@@ -191,7 +191,7 @@ void Camera::update() {
                         genderNet.setInput(faceBlob);
                         Mat genderPreds = genderNet.forward();
                         int genderIdx = genderPreds.at<float>(0) > genderPreds.at<float>(1) ? 0 : 1;
-                        string gender = genderList[genderIdx];
+                        this->gender = genderList[genderIdx];
 
                         // تشخیص سن
                         ageNet.setInput(faceBlob);
@@ -199,7 +199,7 @@ void Camera::update() {
                         double ageConf;
                         Point classNumber;
                         minMaxLoc(agePreds, NULL, &ageConf, NULL, &classNumber);
-                        string age = ageList[classNumber.x];
+                        this->age = ageList[classNumber.x];
 
                         // متن روی تصویر
                         string label = gender + ", " + age;
@@ -253,4 +253,12 @@ void Camera::update() {
 
 bool Camera::getSuccess() const {
     return success;
+}
+
+string Camera::getGender() const {
+	return this->gender;
+}
+
+string Camera::getAge() const {
+	return this->age;
 }
