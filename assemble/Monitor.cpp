@@ -1,4 +1,5 @@
 #include "Monitor.h"
+#include <iostream>
 
 using namespace std;
 
@@ -9,7 +10,9 @@ Monitor::Monitor(const string& videosDir, const string& audiosDir)
       currentTask(Task::IDLE),
       streamFinished(false),
       playerPid(-1),
-      streamStartTime(0) {}
+      streamStartTime(0) {
+			cout << "Monitor constructed" << endl;
+		  }
 
 string Monitor::getVideosDirectory() const {
     return videosDirectory;
@@ -34,6 +37,7 @@ void Monitor::setTask(Task task) {
         return;
     }
     currentTask = task;
+    cout << "Monitor: new task is " << currentTask << endl;
 }
 
 bool Monitor::getStreamFinished() {
@@ -57,6 +61,7 @@ bool Monitor::getStreamFinished() {
 
 void Monitor::setMode(Mode mode) {
     this->currentMode = mode;
+    cout << "Monitor: new mode is " << currentMode << endl;
 }
 
 void Monitor::update() {

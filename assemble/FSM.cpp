@@ -5,7 +5,9 @@
 
 using namespace std;
 
-FSM::FSM() : currentState(SONAR_DETECTION), stateTimer(0), stateStartTimer(0) {}
+FSM::FSM() : currentState(SONAR_DETECTION), stateTimer(0), stateStartTimer(0) {
+	cout << "FSM constructed" << endl;
+	}
 
 unsigned long millis() {
     using namespace chrono;
@@ -18,6 +20,7 @@ void FSM::setStateMachine(State newState) {
     currentState = newState;
     stateStartTimer = millis();
     stateTimer = 0;
+    cout << "FSM: new state is " << currentState << endl;
 }
 
 bool FSM::watchdog(unsigned int watchdogTimer) {
@@ -32,6 +35,7 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
     switch(currentState) {
         case SONAR_DETECTION:
             if(camera.getSuccess()) {
+				cout << "FSM(SONAR_DETECTION): camera.getSuccess()" << endl;
                 camera.setTask(Camera::Task::IDLE);
                 camera.setTimer();
                 camera.setNextTask(Camera::Task::FACE_DETECTION);
@@ -40,6 +44,7 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
                 monitor.setTask(Monitor::Task::PLAY);
             }
             if(sonar.getSuccess()) {
+				cout << "FSM(SONAR_DETECTION): sonar.getSuccess()" << endl;
                 camera.setMode(Camera::Mode::CLOSE_UP);
                 // sonar.setFailTimer(2.0);
                 setStateMachine(FACE_DETECTION);
@@ -49,13 +54,16 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
         case FACE_DETECTION:
             stateTimerUpdate();
             if(camera.getSuccess()) {
+				cout << "FSM(FACE_DETECTION): camera.getSuccess()" << endl;
                 // camera.setMode(Camera::Mode::...);
                 string cd = monitor.getVideosDirectory() + '/' + camera.getGender() + '/' + camera.getAge();
                 monitor.setStream(cd);
                 monitor.setTask(Monitor::Task::PLAY);
                 setStateMachine(PLAY_VIDEO_FILE);
             } else if((watchdog(2000) && sonar.getFail()) || watchdog(4000)) {
-                camera.setTask(Camera::Mode::DISTANT);
+                if(sonar.getFail()) cout << "FSM(FACE_DETECTION): sonar.getFail()" << endl;
+                else cout << "FSM(FACE_DETECTION): watchdog()" << endl;
+                camera.setMode(Camera::Mode::DISTANT);
                 setStateMachine(SONAR_DETECTION);
             }
             break;
@@ -73,6 +81,7 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
         case PLAY_VIDEO_FILE:
             stateTimerUpdate();
             if(sonar.getFail() || monitor.getStreamFinished() || watchdog(60000)) { // HERE: cam condition?
+                if(sonar.getFail()) cout << "FSM(PLAY_VIDEO_FILE): sonar.getFail()" << endl;
                 setStateMachine(BYE);
             }
             break;

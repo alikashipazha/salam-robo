@@ -25,7 +25,9 @@ Camera::Camera() : currentTask(IDLE) {
                         "(25-32)", "(38-43)", "(48-53)", "(60-100)" };
     this->genderList = { "Male", "Female" };
     this->currentMode = DISTANT;
-    this->setTask(IDLE);
+    this->setTask(TURN_ON);
+    
+    cout << "Camera constructed" << endl;
 }
 
 Camera::Task Camera::getTask() const {
@@ -43,10 +45,12 @@ std::string Camera::getColor() const {
 void Camera::setTask(Task t) {
     success = false;
     currentTask = t;
+    cout << "Camera: new task is " << currentTask << endl;
 }
 
 void Camera::setMode(Mode mode) {
     currentMode = mode;
+    cout << "Camera: new Mode is " << currentMode << endl;
 }
 
 void Camera::setColor(std::string color){
@@ -127,7 +131,7 @@ bool Camera::isDominantColor(cv::Mat& frame, int x1, int x2, int y1) { //new
 	}
 
 	double ratio = static_cast<double>(maxCount) / totalPixels;
-	cout << "Dominant color: " << this->dominantColor << " - " << ratio * 100 << "% of ROI" << endl;
+	cout << "Camera: Dominant color: " << this->dominantColor << " - " << ratio * 100 << "% of ROI" << endl;
 	return ratio >= CLOTH_THRESHOLD;
 }
 
@@ -167,6 +171,7 @@ void Camera::update() {
             for (int i = 0; i < detectionMat.rows; i++) {
                 float confidence = detectionMat.at<float>(i, 2);
                 if (confidence > CONFIDENCE_THRESHOLD) {
+					cout << "Camera: face n." << i << " detected" << endl;
                     int x1 = static_cast<int>(detectionMat.at<float>(i, 3) * frame.cols);
                     int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * frame.rows);
                     int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * frame.cols);
