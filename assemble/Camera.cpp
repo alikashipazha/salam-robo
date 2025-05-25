@@ -1,7 +1,7 @@
 #include "Camera.h"
 #include <iostream>
 #include <string>
-
+//jadid
 #define CONFIDENCE_THRESHOLD 0.7
 #define CLOTH_THRESHOLD 0.7
 #define ROI_RATIO 1/2
