@@ -102,12 +102,13 @@ std::string Camera::classifyColor(cv::Vec3b hsv) { //new
 }
 
 bool Camera::isDominantColor(cv::Mat& frame, Rect roi, float thresh) { //new
-	if (frame.empty() || roi.x < 0 || ((roi.x + roi.width) > frame.cols))
+	if (frame.empty() || roi.x < 0 || roi.y < 0 || ((roi.x + roi.width) > frame.cols) || ((roi.y + roi.height) > frame.rows) || roi.width <= 0 || roi.height <= 0)
 		return false;
 
 	// Rect roi(x1, y1, dx, dy);
 	Mat region = frame(roi);
-
+	if(region.empty())
+		return false;
 	// تبدیل به HSV برای دسته‌بندی بهتر رنگ
 	Mat hsv;
 	cvtColor(region, hsv, COLOR_BGR2HSV);
@@ -149,7 +150,14 @@ cv::Rect Camera::getIrisRect(const std::vector<Point2f>& points, int p1, int p2,
     float y_min = std::min(pt1.y, pt2.y);
     float y_max = std::max(pt3.y, pt4.y);
 
-    return Rect(Point2f(x_min, y_min), Point2f(x_max, y_max));
+	int x = cvRound(x_min);
+	int y = cvRound(y_min);
+	int width = cvRound(x_max - x_min);
+	int height = cvRound(y_max - y_min);
+	
+	if(width <= 0 || height <= 0) return Rect();
+    
+    return Rect(x_min, y_min, width, height);
 }
 
 void Camera::update() {
@@ -231,16 +239,18 @@ void Camera::update() {
                         }
                         
                         
-                        
+                        cout << "race\n" << endl;
                         //race
                         Rect roiFace(x1, y1, x2-x1, y2-y1);
-                        if (isDominantColor(frame, roiFace, 0.8)) {
+                        if (isDominantColor(frame, roiFace, 0.5)) {
                             this->dominantColor;
                             if(this->dominantColor == "black" || this->dominantColor == "brown") {
                                 this->faceFeatures.race = "black";
                             }
                         }
 
+						
+                        cout << "eyes\n" << endl;
                         // تشخیص چشم ها
                         // std::vector<std::vector<Point2f>> landmarks;
                         std::vector<Point2f> landmark;
@@ -250,9 +260,10 @@ void Camera::update() {
                         bool facemarkSuccess = facemark->fit(frame, faces, landmarks);
                         if (facemarkSuccess && !landmarks.empty()) {
                             landmark = landmarks[0]; // فقط اولین صورت
+                            //cout << "n(p) = " << landmark.size() << endl;
                             // سپس مستطیل عنبیه چشم‌ها را استخراج کن:
-                            Rect leftIris = getIrisRect(landmark, 37, 38, 41, 40);
-                            Rect rightIris = getIrisRect(landmark, 43, 44, 47, 46);
+                            Rect leftIris = getIrisRect(landmark, 38, 39, 42, 41);
+                            Rect rightIris = getIrisRect(landmark, 44, 45, 48, 47);
                             if(isDominantColor(frame, leftIris, 0.4)) {
                                 this->faceFeatures.eyesColor = this->dominantColor;
                             } else if(isDominantColor(frame, rightIris, 0.4)) {
@@ -261,9 +272,11 @@ void Camera::update() {
                                 this->faceFeatures.eyesColor = "nan";
                             }
                         }
-
+						
+						
+                        cout << "hair\n" << endl;
                         // تشخیص مو ها
-                        int hairlen = (y2-y1)/5;
+                        int hairlen = (y2-y1)/6;
                         Rect roiHair(x1, y1-hairlen, x2-x1, hairlen);
                         if(isDominantColor(frame, roiHair, 0.5)) {
                             this->faceFeatures.hairColor = this->dominantColor;
