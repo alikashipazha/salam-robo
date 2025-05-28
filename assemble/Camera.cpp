@@ -17,7 +17,7 @@ Camera::Camera() : currentTask(IDLE) {
     std::string ageModel = "age_detector/age_net.caffemodel";
     std::string genderProto = "gender_detector/deploy_gender.prototxt";
     std::string genderModel = "gender_detector/gender_net.caffemodel";
-    Ptr<Facemark> facemark = FacemarkLBF::create();
+    facemark = FacemarkLBF::create();
     if (!facemark->loadModel("lbfmodel.yaml")) {
         cerr << "Error loading LBF model\n";
         return -1;
@@ -105,7 +105,7 @@ std::string Camera::classifyColor(cv::Vec3b hsv) { //new
 }
 
 bool Camera::isDominantColor(cv::Mat& frame, Rect roi, float thresh) { //new
-	if (frame.empty() || x1 < 0 || ((x1+dx) > frame.cols))
+	if (frame.empty() || roi.x < 0 || ((roi.x + roi.width) > frame.cols))
 		return false;
 
 	// Rect roi(x1, y1, dx, dy);
@@ -240,7 +240,7 @@ void Camera::update() {
                         if (isDominantColor(frame, roiFace, 0.8)) {
                             this->dominantColor;
                             if(this->dominantColor == "black" || this->dominantColor == "brown") {
-                                this->FaceFeatures.race = "black";
+                                this->faceFeatures.race = "black";
                             }
                         }
 
@@ -266,7 +266,7 @@ void Camera::update() {
                         }
 
                         // تشخیص مو ها
-                        int = (y2-y1)/5;
+                        int hairlen = (y2-y1)/5;
                         Rect roiHair(x1, y1-hairlen, x2-x1, hairlen);
                         if(isDominantColor(frame, roiHair, 0.5)) {
                             this->faceFeatures.hairColor = this->dominantColor;

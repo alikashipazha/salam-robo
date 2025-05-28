@@ -45,6 +45,7 @@ private:
     std::string clothColor;
     std::chrono::steady_clock::time_point idleStartTime;
     FaceFeatures faceFeatures;
+    Ptr<Facemark> facemark;
 
 public:
     Camera();
@@ -57,8 +58,8 @@ public:
     void setTimer();
     void setNextTask(Task nextTask);
     std::string classifyColor(cv::Vec3b hsv);
-    bool isDominantColor(cv::Mat& frame, Rect roi);
-    cv::Rect getIrisRect(const std::vector<Point2f>& points, int p1, int p2, int p3, int p4)
+    bool isDominantColor(cv::Mat& frame, Rect roi, float thresh);
+    cv::Rect getIrisRect(const std::vector<Point2f>& points, int p1, int p2, int p3, int p4);
     void update();
     bool getSuccess() const;
     FaceFeatures getFaceFeatures() const;
