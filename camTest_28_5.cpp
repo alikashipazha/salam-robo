@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 #include "Camera.h"
 
 int main() {
@@ -24,11 +25,11 @@ int main() {
             std::cout << "Race: " << features.race << "\n";
             std::cout << "Hair Color: " << features.hairColor << "\n";
             std::cout << "Eye Color: " << features.eyesColor << "\n";
-            break;
+            //break;
         }
-        count++;
+        //count++;
         // اضافه کردن کمی تأخیر برای جلوگیری از مصرف زیاد CPU (اختیاری)
-        std::this_thread::sleep_for(std::chrono::milliseconds(30));
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 
     if (!cam.getSuccess()) {
