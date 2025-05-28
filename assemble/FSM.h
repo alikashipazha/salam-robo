@@ -14,7 +14,6 @@ public:
         START,
         SONAR_DETECTION,
         FACE_DETECTION,
-        ADVANCED_FACE_DETECTION,
         PLAY_VIDEO_FILE,
         BYE
     };

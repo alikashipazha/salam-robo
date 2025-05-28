@@ -39,7 +39,7 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
                 camera.setTask(Camera::Task::IDLE);
                 camera.setTimer();
                 camera.setNextTask(Camera::Task::FACE_DETECTION);
-                string cd = monitor.getAudiosDirectory() + '/' + camera.getColor(); 
+                string cd = monitor.getAudiosDirectory() + '/' + camera.getClothColor(); 
                 monitor.setStream(cd);
                 monitor.setTask(Monitor::Task::PLAY);
             }
@@ -68,16 +68,6 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
             }
             break;
 
-        case ADVANCED_FACE_DETECTION: // ignore this state
-            // stateTimerUpdate();
-            // if(camera.getSuccess() || watchdog(4000)) {
-            //     // string cd = monitor.getVideosDirectory() + '/' + camera.getGender() + '/' + camera.getCloth();
-            //     // monitor.setVideo(cd);
-            //     monitor.setTask(Monitor::Task::PLAY);
-            //     currentState = PLAY_VIDEO_FILE;
-            // }
-            break;
-
         case PLAY_VIDEO_FILE:
             stateTimerUpdate();
             if(sonar.getFail() || monitor.getStreamFinished() || watchdog(60000)) { // HERE: cam condition?
@@ -99,7 +89,6 @@ void FSM::printState() {
         case START: cout << "START\n"; break;
         case SONAR_DETECTION: cout << "SONAR_DETECTION\n"; break;
         case FACE_DETECTION: cout << "FACE_DETECTION\n"; break;
-        case ADVANCED_FACE_DETECTION: cout << "ADVANCED_FACE_DETECTION\n"; break;
         case PLAY_VIDEO_FILE: cout << "PLAY_VIDEO_FILE\n"; break;
         case BYE: cout << "BYE\n"; break;
     }

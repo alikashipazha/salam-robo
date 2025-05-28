@@ -1,12 +1,13 @@
 #include "Camera.h"
 #include <iostream>
 #include <string>
-//jadid
+
 #define CONFIDENCE_THRESHOLD 0.7
 #define CLOTH_THRESHOLD 0.7
 #define ROI_RATIO 1/2
 
 using namespace cv;
+using namespace cv::face;
 using namespace std;
 
 Camera::Camera() : currentTask(IDLE) {
@@ -16,7 +17,11 @@ Camera::Camera() : currentTask(IDLE) {
     std::string ageModel = "age_detector/age_net.caffemodel";
     std::string genderProto = "gender_detector/deploy_gender.prototxt";
     std::string genderModel = "gender_detector/gender_net.caffemodel";
-
+    Ptr<Facemark> facemark = FacemarkLBF::create();
+    if (!facemark->loadModel("lbfmodel.yaml")) {
+        cerr << "Error loading LBF model\n";
+        return -1;
+    }
     faceNet = dnn::readNetFromTensorflow(faceModel, faceProto);
     ageNet = dnn::readNetFromCaffe(ageProto, ageModel);
     genderNet = dnn::readNetFromCaffe(genderProto, genderModel);
@@ -25,6 +30,7 @@ Camera::Camera() : currentTask(IDLE) {
                         "(25-32)", "(38-43)", "(48-53)", "(60-100)" };
     this->genderList = { "Male", "Female" };
     this->currentMode = DISTANT;
+    
     this->setTask(TURN_ON);
     
     cout << "Camera constructed" << endl;
@@ -38,8 +44,8 @@ Camera::Mode Camera::getMode() const {
     return currentMode;
 }
 
-std::string Camera::getColor() const {
-    return this->color;
+std::string Camera::getClothColor() const {
+    return this->clothColor;
 }
 
 void Camera::setTask(Task t) {
@@ -53,8 +59,8 @@ void Camera::setMode(Mode mode) {
     cout << "Camera: new Mode is " << currentMode << endl;
 }
 
-void Camera::setColor(std::string color){
-    this->color = color;
+void Camera::setClothColor(std::string clothColor){
+    this->clothColor = clothColor;
 }
 
 void Camera::setTimer() {
@@ -98,11 +104,11 @@ std::string Camera::classifyColor(cv::Vec3b hsv) { //new
 	return "unknown";
 }
 
-bool Camera::isDominantColor(cv::Mat& frame, int x1, int x2, int y1) { //new
-	if (frame.empty() || x1 >= x2 || x1 < 0 || x2 > frame.cols)
+bool Camera::isDominantColor(cv::Mat& frame, Rect roi, float thresh) { //new
+	if (frame.empty() || x1 < 0 || ((x1+dx) > frame.cols))
 		return false;
 
-	Rect roi(x1, y1, x2 - x1, (frame.rows-y1)*ROI_RATIO);
+	// Rect roi(x1, y1, dx, dy);
 	Mat region = frame(roi);
 
 	// تبدیل به HSV برای دسته‌بندی بهتر رنگ
@@ -132,7 +138,21 @@ bool Camera::isDominantColor(cv::Mat& frame, int x1, int x2, int y1) { //new
 
 	double ratio = static_cast<double>(maxCount) / totalPixels;
 	cout << "Camera: Dominant color: " << this->dominantColor << " - " << ratio * 100 << "% of ROI" << endl;
-	return ratio >= CLOTH_THRESHOLD;
+	return ratio >= thresh;
+}
+
+cv::Rect Camera::getIrisRect(const std::vector<Point2f>& points, int p1, int p2, int p3, int p4) {
+    Point2f pt1 = points[p1];
+    Point2f pt2 = points[p2];
+    Point2f pt3 = points[p3];
+    Point2f pt4 = points[p4];
+
+    float x_min = std::min(pt1.x, pt3.x);
+    float x_max = std::max(pt2.x, pt4.x);
+    float y_min = std::min(pt1.y, pt2.y);
+    float y_max = std::max(pt3.y, pt4.y);
+
+    return Rect(Point2f(x_min, y_min), Point2f(x_max, y_max));
 }
 
 void Camera::update() {
@@ -196,7 +216,7 @@ void Camera::update() {
                         genderNet.setInput(faceBlob);
                         Mat genderPreds = genderNet.forward();
                         int genderIdx = genderPreds.at<float>(0) > genderPreds.at<float>(1) ? 0 : 1;
-                        this->gender = genderList[genderIdx];
+                        this->faceFeatures.gender = genderList[genderIdx];
 
                         // تشخیص سن
                         ageNet.setInput(faceBlob);
@@ -204,16 +224,64 @@ void Camera::update() {
                         double ageConf;
                         Point classNumber;
                         minMaxLoc(agePreds, NULL, &ageConf, NULL, &classNumber);
-                        this->age = ageList[classNumber.x];
+                        this->faceFeatures.age = ageList[classNumber.x];
+                        if (this->faceFeatures.age == "(0-2)" || this->faceFeatures.age == "(4-6)" || this->faceFeatures.age == "(8-12)") {
+                            this->faceFeatures.age = "kid";
+                        } else if (this->faceFeatures.age == "(60-100)") {
+                            this->faceFeatures.age = "old";
+                        } else {
+                            this->faceFeatures.age = "adult";
+                        }
+                        
+                        
+                        
+                        //race
+                        Rect roiFace(x1, y1, x2-x1, y2-y1);
+                        if (isDominantColor(frame, roiFace, 0.8)) {
+                            this->dominantColor;
+                            if(this->dominantColor == "black" || this->dominantColor == "brown") {
+                                this->FaceFeatures.race = "black";
+                            }
+                        }
+
+                        // تشخیص چشم ها
+                        // std::vector<std::vector<Point2f>> landmarks;
+                        std::vector<Point2f> landmark;
+                        std::vector<Rect> faces = { faceBox };
+                        std::vector<std::vector<Point2f>> landmarks;
+
+                        bool facemarkSuccess = facemark->fit(frame, faces, landmarks);
+                        if (facemarkSuccess && !landmarks.empty()) {
+                            landmark = landmarks[0]; // فقط اولین صورت
+                            // سپس مستطیل عنبیه چشم‌ها را استخراج کن:
+                            Rect leftIris = getIrisRect(landmark, 37, 38, 41, 40);
+                            Rect rightIris = getIrisRect(landmark, 43, 44, 47, 46);
+                            if(isDominantColor(frame, leftIris, 0.4)) {
+                                this->faceFeatures.eyesColor = this->dominantColor;
+                            } else if(isDominantColor(frame, rightIris, 0.4)) {
+                                this->faceFeatures.eyesColor = this->dominantColor;
+                            } else {
+                                this->faceFeatures.eyesColor = "nan";
+                            }
+                        }
+
+                        // تشخیص مو ها
+                        int = (y2-y1)/5;
+                        Rect roiHair(x1, y1-hairlen, x2-x1, hairlen);
+                        if(isDominantColor(frame, roiHair, 0.5)) {
+                            this->faceFeatures.hairColor = this->dominantColor;
+                        }                      
 
                         // متن روی تصویر
-                        string label = gender + ", " + age;
+                        string label = this->faceFeatures.gender + ", " + this->faceFeatures.age + ", " + this->faceFeatures.race
+                                        + ", " + this->faceFeatures.hairColor + ", " + this->faceFeatures.eyesColor;
                         putText(frame, label, Point(x1, y1 - 10),
                                 FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
                     } else {
-                        if(isDominantColor(frame, x1, x2, y1)) {
+                        Rect roiCloth(x1, y1, x2 - x1, (frame.rows-y1)*ROI_RATIO);
+                        if(isDominantColor(frame, roiCloth, 0.7)) {
                             //here
-                            this->setColor(this->dominantColor);
+                            this->setClothColor(this->dominantColor);
                             this->success = true;
                             break;
                         }
@@ -231,11 +299,6 @@ void Camera::update() {
             }
             break; //here
 		}
-
-        case ADVANCED_FACE_DETECTION:
-            cout << "Running Advanced Face Detection...\n";
-            success = (rand() % 100) < 90;
-            break;
 
         case TURN_OFF:
             if (cap.isOpened()) {
@@ -260,10 +323,6 @@ bool Camera::getSuccess() const {
     return success;
 }
 
-string Camera::getGender() const {
-	return this->gender;
-}
-
-string Camera::getAge() const {
-	return this->age;
+FaceFeatures Camera::getFaceFeatures() const {
+    return this->faceFeatures;
 }
