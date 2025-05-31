@@ -33,53 +33,74 @@ void FSM::stateTimerUpdate() {
 
 void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
     switch(currentState) {
-        case SONAR_DETECTION:
+        case SONAR_DETECTION: {
+            // string cd = monitor.getVideosDirectory() + '/' + "gif1.webm"; 
+            // monitor.setStream(cd);
+            // monitor.setTask(Monitor::Task::PLAY);
             if(camera.getSuccess()) {
+                monitor.setTask(Monitor::Task::STOP); //HERE
+
 				cout << "FSM(SONAR_DETECTION): camera.getSuccess()" << endl;
                 camera.setTask(Camera::Task::IDLE);
                 camera.setTimer();
                 camera.setNextTask(Camera::Task::FACE_DETECTION);
-                string cd = monitor.getAudiosDirectory() + '/' + camera.getClothColor(); 
+                // string cd = monitor.getAudiosDirectory() + '/' + camera.getClothColor(); 
+                string cd = monitor.getAudiosDirectory() + '/' + "AUDIO.mp3"; 
                 monitor.setStream(cd);
                 monitor.setTask(Monitor::Task::PLAY);
             }
             if(sonar.getSuccess()) {
-				cout << "FSM(SONAR_DETECTION): sonar.getSuccess()" << endl;
+                monitor.setTask(Monitor::Task::STOP); // HERE
+				
+                cout << "FSM(SONAR_DETECTION): sonar.getSuccess()" << endl;
+                
+                // /*string*/ cd = monitor.getVideosDirectory() + '/' + "gif2.webm"; 
+                // monitor.setStream(cd);
+                // monitor.setTask(Monitor::Task::PLAY);
+                
                 camera.setMode(Camera::Mode::CLOSE_UP);
                 // sonar.setFailTimer(2.0);
                 setStateMachine(FACE_DETECTION);
             }
             break;
-
+        }
         case FACE_DETECTION:
             stateTimerUpdate();
             if(camera.getSuccess()) {
+                // monitor.setTask(Monitor::Task::STOP);
+                
 				cout << "FSM(FACE_DETECTION): camera.getSuccess()" << endl;
                 // camera.setMode(Camera::Mode::...);
-                string cd = monitor.getVideosDirectory() + '/' + camera.getGender() + '/' + camera.getAge();
+                // string cd = monitor.getVideosDirectory() + '/' + camera.getFaceFeatures().gender + '/' + camera.getFaceFeatures().age;
+                string cd = monitor.getVideosDirectory() + '/' + "first.mp4"; //HERE
                 monitor.setStream(cd);
+                monitor.setMode(Monitor::Mode::VIDEO);
                 monitor.setTask(Monitor::Task::PLAY);
                 setStateMachine(PLAY_VIDEO_FILE);
-            } else if((watchdog(2000) && sonar.getFail()) || watchdog(4000)) {
+            } else if((watchdog(5000) && sonar.getFail()) || watchdog(10000)) {
                 if(sonar.getFail()) cout << "FSM(FACE_DETECTION): sonar.getFail()" << endl;
                 else cout << "FSM(FACE_DETECTION): watchdog()" << endl;
                 camera.setMode(Camera::Mode::DISTANT);
+                monitor.setTask(Monitor::Task::STOP);
                 setStateMachine(SONAR_DETECTION);
             }
             break;
 
         case PLAY_VIDEO_FILE:
             stateTimerUpdate();
-            if(sonar.getFail() || monitor.getStreamFinished() || watchdog(60000)) { // HERE: cam condition?
+            if((sonar.getFail() && watchdog(5000)) || monitor.getStreamFinished() || watchdog(60000)) { // HERE: cam condition?
                 if(sonar.getFail()) cout << "FSM(PLAY_VIDEO_FILE): sonar.getFail()" << endl;
+                monitor.setTask(Monitor::Task::STOP);
                 setStateMachine(BYE);
             }
             break;
 
         case BYE:
             stateTimerUpdate();
-            if(monitor.getStreamFinished() || watchdog(60000)) // ignore this if condition for now
+            if(monitor.getStreamFinished() || watchdog(60000)) { // ignore this if condition for now
+                monitor.setTask(Monitor::Task::STOP);
                 setStateMachine(SONAR_DETECTION);
+            }
             break;
     }
 }

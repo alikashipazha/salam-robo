@@ -13,20 +13,22 @@ using namespace std;
 class Monitor {
 public:
     enum Task {
-        IDLE,
+        SC_SAVER,
         PLAY,
         STOP,
     };
 
     enum Mode {
         VIDEO,
-        AUDIO
+        AUDIO,
+        GIF
     };
 
 private:
     string videosDirectory;
     string audiosDirectory;
     string currentStream;
+    string scSaverGif;
     Task currentTask;
     Mode currentMode;
     bool streamFinished;
@@ -35,7 +37,7 @@ private:
     unsigned long streamStartTime; // زمان شروع پخش
 
 public:
-    explicit Monitor(const string& videosDir, const string& audiosDir);
+    explicit Monitor(const string& videosDir, const string& audiosDir, const string& sc_saver_gif);
 
     string getVideosDirectory() const;
     string getAudiosDirectory() const;

@@ -8,7 +8,7 @@
 #include "Monitor.h"
 #include "FSM.h"
 
-#define SLEEP_TIME 50
+#define SLEEP_TIME 10 //50
 
 using namespace std;
 
@@ -17,7 +17,7 @@ int main() {
 
     Sonar2 sonar(17, 27);
     Camera camera;
-    Monitor monitor("/home/salam-robo/test/assemble", "/home/salam-robo/test/assemble");
+    Monitor monitor("/home/salam-robo/test/assemble", "/home/salam-robo/test/assemble", "home/salam-robo/test/assemble/gif1.webm");
     FSM fsm;
 
     std::thread cameraThread([&]() {

@@ -3,11 +3,13 @@
 
 using namespace std;
 
-Monitor::Monitor(const string& videosDir, const string& audiosDir)
+Monitor::Monitor(const string& videosDir, const string& audiosDir, const string& sc_saver_gif)
     : videosDirectory(videosDir),
 	  audiosDirectory(audiosDir),
+      scSaverGif(sc_saver_gif),
       currentStream(""),
-      currentTask(Task::IDLE),
+      currentMode(Mode::GIF), //HERE
+      currentTask(Task::SC_SAVER),
       streamFinished(false),
       playerPid(-1),
       streamStartTime(0) {
@@ -33,8 +35,10 @@ void Monitor::setTask(Task task) {
         startPlayback();
     } else if (task == Task::STOP && currentTask == Task::PLAY) {
         stopPlayback();
-        currentTask = Task::IDLE; // همینجا حالت رو IDLE کن
+        currentTask = Task::SC_SAVER; // همینجا حالت رو SC_SAVER کن
         return;
+    } else if (task == Task::SC_SAVER && currentTask != Task::SC_SAVER) { //HERE
+        startPlayback();
     }
     currentTask = task;
     cout << "Monitor: new task is " << currentTask << endl;
@@ -48,12 +52,12 @@ bool Monitor::getStreamFinished() {
             if (ret == -1) {
                 // پروسس وجود نداره، یعنی تموم شده
                 streamFinished = true;
-                currentTask = Task::IDLE;
+                //currentTask = Task::SC_SAVER; //HERE
                 playerPid = -1;
             }
         } else {
             streamFinished = true;
-            currentTask = Task::IDLE;
+            //currentTask = Task::SC_SAVER; //HERE
         }
     }
     return streamFinished;
@@ -66,15 +70,18 @@ void Monitor::setMode(Mode mode) {
 
 void Monitor::update() {
     switch (currentTask) {
-        case Task::IDLE:
+        case Task::SC_SAVER:
             // کاری نمی‌کنیم
             break;
         case Task::PLAY:
-            getStreamFinished(); // آپدیت وضعیت ویدیو
+            if(getStreamFinished()) { // آپدیت وضعیت ویدیو
+                currentTask = Task::STOP;
+            }
             break;
         case Task::STOP:
             stopPlayback();
-            currentTask = Task::IDLE;
+            currentTask = Task::SC_SAVER;
+            currentMode = Mode::GIF;
             break;
     }
 }
@@ -86,8 +93,10 @@ void Monitor::startPlayback() {
     if(this->currentMode == VIDEO) {
         // دستور پخش با omxplayer، PID پروسس رو بگیر
         command = "mpv --no-terminal --audio-device=alsa/default --really-quiet --fullscreen \"" + this->currentStream + "\" & echo $!";
-    } else {
+    } else if(this->currentMode == AUDIO) {
         command = "mpv --no-video --really-quiet \"" + this->currentStream + "\" & echo $!";
+    } else { //HERE
+        command = "mpv --no-terminal --audio-device=alsa/default --really-quiet --fullscreen --loop \"" + this->scSaverGif + "\" & echo $!";
     }
 
 
