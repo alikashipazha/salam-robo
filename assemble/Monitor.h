@@ -14,6 +14,7 @@ class Monitor {
 public:
     enum Task {
         SC_SAVER,
+        READY2PLAY,
         PLAY,
         STOP,
     };
@@ -48,9 +49,9 @@ public:
     void setMode(Mode mode);
 
     void update();
-
-private:
     void startPlayback();
+    
+private:
     void stopPlayback();
     unsigned long millis();
 };

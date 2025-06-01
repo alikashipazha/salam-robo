@@ -8,12 +8,14 @@ Monitor::Monitor(const string& videosDir, const string& audiosDir, const string&
 	  audiosDirectory(audiosDir),
       scSaverGif(sc_saver_gif),
       currentStream(""),
-      currentMode(Mode::GIF), //HERE
+      currentMode(Mode::VIDEO), //HERE GIF
       currentTask(Task::SC_SAVER),
       streamFinished(false),
       playerPid(-1),
       streamStartTime(0) {
 			cout << "Monitor constructed" << endl;
+            cout << "Monitor: Mode = " << currentMode << endl;
+            cout << "Monitor: Task = " << currentTask << endl;
 		  }
 
 string Monitor::getVideosDirectory() const {
@@ -31,17 +33,20 @@ void Monitor::setStream(const string& streamPath) {
 }
 
 void Monitor::setTask(Task task) {
+    cout << "Monitor: new task is " << currentTask << endl;
     if (task == Task::PLAY && currentTask != Task::PLAY) {
         startPlayback();
     } else if (task == Task::STOP && currentTask == Task::PLAY) {
         stopPlayback();
-        currentTask = Task::SC_SAVER; // همینجا حالت رو SC_SAVER کن
+        // currentTask = Task::SC_SAVER; // همینجا حالت رو SC_SAVER کن
         return;
-    } else if (task == Task::SC_SAVER && currentTask != Task::SC_SAVER) { //HERE
-        startPlayback();
-    }
+    } 
+    // else if (task == Task::SC_SAVER && currentTask != Task::SC_SAVER) { //HERE
+    //     startPlayback();
+    // } else if(task == Task::READY2PLAY && currentTask == Task::SC_SAVER) {
+    //     stopPlayback();
+    // }
     currentTask = task;
-    cout << "Monitor: new task is " << currentTask << endl;
 }
 
 bool Monitor::getStreamFinished() {
@@ -70,9 +75,12 @@ void Monitor::setMode(Mode mode) {
 
 void Monitor::update() {
     switch (currentTask) {
-        case Task::SC_SAVER:
-            // کاری نمی‌کنیم
-            break;
+        // case Task::SC_SAVER: //HERE
+        //     // کاری نمی‌کنیم
+        //     break;
+        // case Task::READY2PLAY:
+        //     stopPlayback();
+        //     break;
         case Task::PLAY:
             if(getStreamFinished()) { // آپدیت وضعیت ویدیو
                 currentTask = Task::STOP;
@@ -81,7 +89,7 @@ void Monitor::update() {
         case Task::STOP:
             stopPlayback();
             currentTask = Task::SC_SAVER;
-            currentMode = Mode::GIF;
+            // currentMode = Mode::GIF; //HERE
             break;
     }
 }
@@ -92,12 +100,15 @@ void Monitor::startPlayback() {
     string command;
     if(this->currentMode == VIDEO) {
         // دستور پخش با omxplayer، PID پروسس رو بگیر
-        command = "mpv --no-terminal --audio-device=alsa/default --really-quiet --fullscreen \"" + this->currentStream + "\" & echo $!";
+        //HERE
+        command = "sh -c 'video=$(ls \"" + this->currentStream + "/\" | grep -E \"\\.(mp4|mkv|avi)$\" | head -1); mpv --no-terminal --audio-device=alsa/default --really-quiet --fullscreen \"" + this->currentStream + "/$video\" & echo $!'";
+        // command = "mpv --no-terminal --audio-device=alsa/default --really-quiet --fullscreen \"" + this->currentStream + "\" & echo $!";
     } else if(this->currentMode == AUDIO) {
         command = "mpv --no-video --really-quiet \"" + this->currentStream + "\" & echo $!";
-    } else { //HERE
-        command = "mpv --no-terminal --audio-device=alsa/default --really-quiet --fullscreen --loop \"" + this->scSaverGif + "\" & echo $!";
-    }
+    } 
+    // else { //HERE
+    //     command = "mpv --no-terminal --audio-device=alsa/default --really-quiet --fullscreen \"" + this->scSaverGif + "\" & echo $!";
+    // }
 
 
     FILE* pipe = popen(command.c_str(), "r");

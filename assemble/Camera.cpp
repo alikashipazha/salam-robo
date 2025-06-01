@@ -301,7 +301,7 @@ void Camera::update() {
                     }
                 }
 
-                // imshow("Face, Age & Gender Detection", frame);
+                imshow("Face, Age & Gender Detection", frame);
                 if (waitKey(1) == 27) {
                     this->setTask(TURN_OFF);
                 }

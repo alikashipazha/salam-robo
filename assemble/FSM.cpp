@@ -38,19 +38,21 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
             // monitor.setStream(cd);
             // monitor.setTask(Monitor::Task::PLAY);
             if(camera.getSuccess()) {
-                monitor.setTask(Monitor::Task::STOP); //HERE
+                cout << camera.getClothColor() << endl;
+                // monitor.setTask(Monitor::Task::READY2PLAY); //HERE
 
 				cout << "FSM(SONAR_DETECTION): camera.getSuccess()" << endl;
                 camera.setTask(Camera::Task::IDLE);
                 camera.setTimer();
                 camera.setNextTask(Camera::Task::FACE_DETECTION);
-                // string cd = monitor.getAudiosDirectory() + '/' + camera.getClothColor(); 
-                string cd = monitor.getAudiosDirectory() + '/' + "AUDIO.mp3"; 
+                string cd = monitor.getAudiosDirectory() + '/' + camera.getClothColor() + "/" + camera.getClothColor() + ".mp3"; 
+                // string cd = monitor.getAudiosDirectory() + '/' + "AUDIO.mp3"; 
+                monitor.setMode(Monitor::Mode::AUDIO); //HERE
                 monitor.setStream(cd);
                 monitor.setTask(Monitor::Task::PLAY);
             }
             if(sonar.getSuccess()) {
-                monitor.setTask(Monitor::Task::STOP); // HERE
+                // monitor.setTask(Monitor::Task::READY2PLAY); // HERE
 				
                 cout << "FSM(SONAR_DETECTION): sonar.getSuccess()" << endl;
                 
@@ -67,12 +69,13 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
         case FACE_DETECTION:
             stateTimerUpdate();
             if(camera.getSuccess()) {
-                // monitor.setTask(Monitor::Task::STOP);
+                // monitor.setTask(Monitor::Task::STOP); //HERE
                 
 				cout << "FSM(FACE_DETECTION): camera.getSuccess()" << endl;
+                cout << camera.getFaceFeatures().gender << camera.getFaceFeatures().age << endl;
                 // camera.setMode(Camera::Mode::...);
-                // string cd = monitor.getVideosDirectory() + '/' + camera.getFaceFeatures().gender + '/' + camera.getFaceFeatures().age;
-                string cd = monitor.getVideosDirectory() + '/' + "first.mp4"; //HERE
+                string cd = monitor.getVideosDirectory() + '/' + camera.getFaceFeatures().gender + '/' + camera.getFaceFeatures().age;
+                // string cd = monitor.getVideosDirectory() + '/' + "first.mp4"; //HERE
                 monitor.setStream(cd);
                 monitor.setMode(Monitor::Mode::VIDEO);
                 monitor.setTask(Monitor::Task::PLAY);

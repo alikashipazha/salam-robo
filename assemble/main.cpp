@@ -17,8 +17,10 @@ int main() {
 
     Sonar2 sonar(17, 27);
     Camera camera;
-    Monitor monitor("/home/salam-robo/test/assemble", "/home/salam-robo/test/assemble", "home/salam-robo/test/assemble/gif1.webm");
+    Monitor monitor("/home/salam-robo/test/assemble/videos", "/home/salam-robo/test/assemble/audios", "home/salam-robo/test/assemble/gif1.webm");
     FSM fsm;
+
+    // monitor.startPlayback(); //HERE
 
     std::thread cameraThread([&]() {
         while (running.load()) {
