@@ -74,7 +74,8 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
 				cout << "FSM(FACE_DETECTION): camera.getSuccess()" << endl;
                 cout << camera.getFaceFeatures().gender << camera.getFaceFeatures().age << endl;
                 // camera.setMode(Camera::Mode::...);
-                string cd = monitor.getVideosDirectory() + '/' + camera.getFaceFeatures().gender + '/' + camera.getFaceFeatures().age;
+                string cd = monitor.getVideosDirectory() + '/' + camera.getFaceFeatures().gender + '/' + camera.getFaceFeatures().age; //HERE
+                cout << cd << endl;
                 // string cd = monitor.getVideosDirectory() + '/' + "first.mp4"; //HERE
                 monitor.setStream(cd);
                 monitor.setMode(Monitor::Mode::VIDEO);
@@ -84,15 +85,17 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
                 if(sonar.getFail()) cout << "FSM(FACE_DETECTION): sonar.getFail()" << endl;
                 else cout << "FSM(FACE_DETECTION): watchdog()" << endl;
                 camera.setMode(Camera::Mode::DISTANT);
-                monitor.setTask(Monitor::Task::STOP);
+                // monitor.setTask(Monitor::Task::STOP);
                 setStateMachine(SONAR_DETECTION);
             }
             break;
 
         case PLAY_VIDEO_FILE:
             stateTimerUpdate();
-            if((sonar.getFail() && watchdog(5000)) || monitor.getStreamFinished() || watchdog(60000)) { // HERE: cam condition?
-                if(sonar.getFail()) cout << "FSM(PLAY_VIDEO_FILE): sonar.getFail()" << endl;
+            if((sonar.getFail() && watchdog(1000)) || monitor.getStreamFinished() || watchdog(60000)) { // HERE: cam condition?
+                if(sonar.getFail()) {
+                    cout << "FSM(PLAY_VIDEO_FILE): sonar.getFail()" << endl;
+                }
                 monitor.setTask(Monitor::Task::STOP);
                 setStateMachine(BYE);
             }
@@ -100,10 +103,13 @@ void FSM::update(const Sonar2& sonar, Camera& camera, Monitor& monitor) {
 
         case BYE:
             stateTimerUpdate();
-            if(monitor.getStreamFinished() || watchdog(60000)) { // ignore this if condition for now
-                monitor.setTask(Monitor::Task::STOP);
+            if(watchdog(1000)) {
                 setStateMachine(SONAR_DETECTION);
             }
+            // if(monitor.getStreamFinished() || watchdog(60000)) { // ignore this if condition for now
+            //     monitor.setTask(Monitor::Task::STOP);
+            //     setStateMachine(SONAR_DETECTION);
+            // }
             break;
     }
 }

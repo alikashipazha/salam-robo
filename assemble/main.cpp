@@ -17,31 +17,44 @@ int main() {
 
     Sonar2 sonar(17, 27);
     Camera camera;
-    Monitor monitor("/home/salam-robo/test/assemble/videos", "/home/salam-robo/test/assemble/audios", "home/salam-robo/test/assemble/gif1.webm");
+    Monitor monitor("/home/salam-robo/test/assemble/videos", "/home/salam-robo/test/assemble/audios", "/home/salam-robo/test/assemble/gif3.mp4");
     FSM fsm;
+    string gif = "home/salam-robo/test/assemble/gif1.mp4";
+    // std::string command = "mpv --loop " + gif + " &"; // استفاده از & برای اجرا در پس‌زمینه
+    // // std::string command = "nohup mpv --loop " + this->scSaverGif + " &";
+    // system(command.c_str());
 
-    // monitor.startPlayback(); //HERE
+    // monitor.startPlayback(); //HERE-JUNE : comment shod
 
     std::thread cameraThread([&]() {
-        while (running.load()) {
-            camera.update();
-            //std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
-        }
+        // while (running.load()) {
+        //     camera.update();
+        //     cout << "thread cam" << endl; //HERE 
+        //     std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
+        // }
+        camera.update();
+        cout << "thread cam" << endl;
     });
 
-    std::thread monitorThread([&]() {
-        while (running.load()) {
-            monitor.update();
-            std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
-        }
-    });
+    // std::thread monitorThread([&]() { //HERE test8june
+    //     while (running.load()) {
+    //         monitor.update();
+    //         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
+    //     }
+    // });
 
-    std::thread fsmThread([&]() {
-        while (running.load()) {
-            fsm.update(sonar, camera, monitor);
-            std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
-        }
-    });
+    // std::thread fsmThread([&]() {
+    //     while (running.load()) {
+    //         fsm.update(sonar, camera, monitor);
+    //         std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
+    //     }
+    // });
+
+    while (running.load()) {
+        fsm.update(sonar, camera, monitor);
+        monitor.update();
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME));
+    }
 
     // اینجا میتونی شرط توقف بذاری، الان برنامه بی‌نهایت اجرا میشه
     while (true) {
@@ -51,8 +64,9 @@ int main() {
     // running.store(false);
 
     cameraThread.join();
-    monitorThread.join();
-    fsmThread.join();
+    //HERE test8june
+    // monitorThread.join();
+    // fsmThread.join();
 
     return 0;
 }

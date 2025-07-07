@@ -163,6 +163,7 @@ cv::Rect Camera::getIrisRect(const std::vector<Point2f>& points, int p1, int p2,
 }
 
 void Camera::update() {
+    while(true) {
     switch (currentTask) {
         case TURN_ON:
             if (!cap.isOpened()) {
@@ -198,7 +199,7 @@ void Camera::update() {
             for (int i = 0; i < detectionMat.rows; i++) {
                 float confidence = detectionMat.at<float>(i, 2);
                 if (confidence > CONFIDENCE_THRESHOLD) {
-					//cout << "Camera: face n." << i << " detected" << endl;
+					// cout << "Camera: face n." << i << " of " << detectionMat.rows << " detected" << endl;
                     int x1 = static_cast<int>(detectionMat.at<float>(i, 3) * frame.cols);
                     int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * frame.rows);
                     int x2 = static_cast<int>(detectionMat.at<float>(i, 5) * frame.cols);
@@ -214,11 +215,12 @@ void Camera::update() {
 
                     Mat face = frame(faceBox);
 
-                    Mat faceBlob = dnn::blobFromImage(face, 1.0, Size(227, 227),
+                    if(this->currentMode == Camera::Mode::CLOSE_UP) { //new
+                        // cout << "in close-up" << endl;
+                        Mat faceBlob = dnn::blobFromImage(face, 1.0, Size(227, 227),
                                                         Scalar(78.4263377603, 87.7689143744, 114.895847746),
                                                         false);
-
-                    if(this->currentMode == Camera::Mode::CLOSE_UP) { //new
+                        
                         // تشخیص جنسیت
                         genderNet.setInput(faceBlob);
                         Mat genderPreds = genderNet.forward();
@@ -291,8 +293,9 @@ void Camera::update() {
                         //         FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
                         this->success = true;
                     } else {
+                        // cout << "in distant" << endl;
                         Rect roiCloth(x1, y1, x2 - x1, (frame.rows-y1)*ROI_RATIO);
-                        if(isDominantColor(frame, roiCloth, 0.7)) {
+                        if(isDominantColor(frame, roiCloth, 0.5)) {
                             //here
                             this->setClothColor(this->dominantColor);
                             this->success = true;
@@ -301,7 +304,7 @@ void Camera::update() {
                     }
                 }
 
-                imshow("Face, Age & Gender Detection", frame);
+                // imshow("Face, Age & Gender Detection", frame);
                 if (waitKey(1) == 27) {
                     this->setTask(TURN_OFF);
                 }
@@ -330,9 +333,11 @@ void Camera::update() {
                 this->setTask(this->nextTask);
             break;
     }
+    }
 }
 
 bool Camera::getSuccess() const {
+    // return true; //HERE june8
     return success;
 }
 

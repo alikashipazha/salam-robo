@@ -7,6 +7,10 @@
 #include <unistd.h>  // pid_t, kill
 #include <signal.h>  // SIGTERM
 #include <chrono>
+#include <thread>
+
+#include <iostream>
+#include <termios.h>
 
 using namespace std;
 
@@ -22,7 +26,7 @@ public:
     enum Mode {
         VIDEO,
         AUDIO,
-        GIF
+        GIF,
     };
 
 private:
@@ -32,9 +36,11 @@ private:
     string scSaverGif;
     Task currentTask;
     Mode currentMode;
+    Mode previousMode;
     bool streamFinished;
 
     pid_t playerPid;  // PID فرآیند پلیر
+    pid_t playerPids[3];
     unsigned long streamStartTime; // زمان شروع پخش
 
 public:
@@ -52,7 +58,7 @@ public:
     void startPlayback();
     
 private:
-    void stopPlayback();
+    void stopPlayback(Mode mode);
     unsigned long millis();
 };
 
