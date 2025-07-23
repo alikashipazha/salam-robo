@@ -57,7 +57,7 @@ public:
     void setClothColor(std::string clothColor);
     void setTimer();
     void setNextTask(Task nextTask);
-    std::string classifyColor(cv::Vec3b hsv);
+    std::string classifyColor(cv::Vec3b bgr);
     bool isDominantColor(cv::Mat& frame, Rect roi, float thresh);
     cv::Rect getIrisRect(const std::vector<Point2f>& points, int p1, int p2, int p3, int p4);
     void update();
