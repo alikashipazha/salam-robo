@@ -14,6 +14,8 @@
 
 using namespace std;
 
+#define INTERSTREAM_SLEEP_TIME 0
+
 class Monitor {
 public:
     enum Task {

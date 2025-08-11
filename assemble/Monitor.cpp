@@ -18,7 +18,13 @@ Monitor::Monitor(const string& videosDir, const string& audiosDir, const string&
             cout << "Monitor: Task = " << currentTask << endl;
             // std::string command = "mpv --loop --fs " + this->scSaverGif + " &"; // استفاده از --fs برای نمایش فول‌اسکرین و --loop برای تکرار ویدیو
             
-            std::string command = "mpv --loop --fs --mute " + this->scSaverGif + " &";
+
+            //this one commented HERE 13 mordad
+            std::string command = "mpv --loop --fs --mute " + this->scSaverGif + " &"; 
+
+
+
+
             // std::string command = "vlc --fullscreen --loop --no-audio " + this->scSaverGif + " &"; // استفاده از --fs برای نمایش فول‌اسکرین، --loop برای تکرار ویدیو و --mute برای پخش بی‌صدا
             // system(command.c_str()); //HERE june8
             startPlayback(); //HERE-JUNE
@@ -50,6 +56,7 @@ void Monitor::setTask(Task task) {
             stopPlayback(Mode::GIF);
             // startPlayback(); //HERE-JUNE
         }
+        std::this_thread::sleep_for(std::chrono::seconds(INTERSTREAM_SLEEP_TIME)); //HERE tabestoon no such line here
         startPlayback();
         // if(this->currentMode == AUDIO) { //HERE-JUNE if only :  && this->currentTask != Task::PLAY
         //     startPlayback();
@@ -60,7 +67,7 @@ void Monitor::setTask(Task task) {
         if(this->currentMode == VIDEO) {
             cout << "MONITOR: task is stop: video" << endl;
             this->currentMode = GIF;
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::this_thread::sleep_for(std::chrono::seconds(INTERSTREAM_SLEEP_TIME)); //HERE tabestoon was 1
             startPlayback();
         }
 
@@ -69,6 +76,7 @@ void Monitor::setTask(Task task) {
     } 
     else if (task == Task::SC_SAVER && currentTask != Task::SC_SAVER) { //HERE-JUNE
         this->currentMode = Mode::GIF;
+        std::this_thread::sleep_for(std::chrono::seconds(INTERSTREAM_SLEEP_TIME)); //HERE tabestoon no such line
         startPlayback();
     }
     else if(task == Task::READY2PLAY && currentTask == Task::SC_SAVER) {

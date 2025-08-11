@@ -22,6 +22,7 @@ private:
     State currentState;
     unsigned long stateTimer;
     unsigned long stateStartTimer;
+    // bool successInFaceDetection;
 
 public:
     FSM();

@@ -25,7 +25,7 @@ public:
     };
     typedef struct {
         std::string race;        // black, asian, caucasian
-        std::string hairColor;   // blonde, ginger, black+brown
+        std::string hairColor;   // blonde, ginger, black_brown, gray_white
         std::string eyesColor;   // blue, green, black+brown
         std::string age;         // kid, (teen,) adult, old
         std::string gender;      // woman, man
@@ -46,6 +46,7 @@ private:
     std::chrono::steady_clock::time_point idleStartTime;
     FaceFeatures faceFeatures;
     Ptr<Facemark> facemark;
+    unsigned short ComposureCounter;
 
 public:
     Camera();
@@ -57,9 +58,12 @@ public:
     void setClothColor(std::string clothColor);
     void setTimer();
     void setNextTask(Task nextTask);
-    std::string classifyColor(cv::Vec3b hsv);
+    cv::Vec3b calculateBGRMean(const cv::Mat& image, const cv::Rect& roi);
+    std::tuple<std::string, std::string, std::string> processFrame(cv::Mat& frame, cv::Rect roi);
+    std::string classifyColor(cv::Vec3b bgr);
     bool isDominantColor(cv::Mat& frame, Rect roi, float thresh);
     cv::Rect getIrisRect(const std::vector<Point2f>& points, int p1, int p2, int p3, int p4);
+    bool openCam(cv::VideoCapture& cap, int camID);
     void update();
     bool getSuccess() const;
     FaceFeatures getFaceFeatures() const;
