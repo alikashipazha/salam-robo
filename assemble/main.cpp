@@ -25,6 +25,9 @@ int main() {
     // system(command.c_str());
 
     // monitor.startPlayback(); //HERE-JUNE : comment shod
+    
+    // // HERE tabestoon for calibration test
+    // camera.setMode(Camera::Mode::CLOSE_UP);
 
     std::thread cameraThread([&]() {
         // while (running.load()) {
@@ -50,6 +53,7 @@ int main() {
     //     }
     // });
 
+    // HERE tabestoon comment for calibration test
     while (running.load()) {
         fsm.update(sonar, camera, monitor);
         monitor.update();

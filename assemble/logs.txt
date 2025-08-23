@@ -1,0 +1,207 @@
+salam-robo@raspberrypi:~/test/assemble $ ./test1shahrivar 
+Sonar2 is constructed
+loading data from : lbfmodel.yaml
+Camera: new task is 0
+Camera constructed
+Monitor constructed
+Monitor: Mode = 2
+Monitor: Task = 0
+MONITOR: in GIF
+FSM constructed
+ (+) Video --vid=1 (*) (h264 1280x720 59.940fps)
+ (+) Audio --aid=1 --alang=eng (*) (aac 2ch 44100Hz)
+AO: [pulse] 44100Hz stereo 2ch float
+VO: [gpu] 1280x720 yuv420p
+[ WARN:0@1.869] global ./modules/videoio/src/cap_gstreamer.cpp (1405) open OpenCV | GStreamer warning: Cannot query video position: status=0, value=-1, duration=-1
+Camera opened successfully.
+Camera: new task is 1
+QStandardPaths: wrong permissions on runtime directory /run/user/1000, 0770 instead of 0700
+libpng warning: iCCP: known incorrect sRGB profile2
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+libpng warning: iCCP: known incorrect sRGB profile
+FSM(SONAR_DETECTION): sonar.getSuccess()0 Dropped: 65
+Camera: new Mode is 0
+FSM: new state is 2
+FSM(FACE_DETECTION): watchdog()-V:  0.000 Dropped: 80
+Camera: new Mode is 1
+FSM: new state is 1
+FSM(SONAR_DETECTION): sonar.getSuccess()
+Camera: new Mode is 0
+FSM: new state is 2
+male: 0.279259 | female: 0.720741:  0.000 Dropped: 87
+agePreds[0] = 0.997955
+agePreds[1] = 0.00180227
+agePreds[2] = 9.05113e-05
+agePreds[3] = 5.09947e-06
+agePreds[4] = 7.15221e-05
+agePreds[5] = 1.90144e-05
+agePreds[6] = 2.80052e-05
+agePreds[7] = 2.84984e-05
+Left Section BGR: (41, 40, 59)
+Center Section BGR: (58, 53, 69)
+Right Section BGR: (43, 42, 61)
+face color : 
+cnl = unknown
+cnc = blue
+cnr = unknown
+Left Section BGR: (34, 48, 37)
+Center Section BGR: (23, 36, 27)
+Right Section BGR: (20, 36, 29)
+Female, adult, caucasian, unknown
+FSM(FACE_DETECTION): camera.getSuccess()
+Female | adult
+/home/salam-robo/test/assemble/videos/Female/adult
+Monitor: new mode is 0 | previous mode is 2
+Monitor: new task is 2 | current task is 0
+MONITOR: task is play: video gif
+mpv --fullscreen --geometry=100%:100% "$(find /home/salam-robo/test/assemble/videos/Female/adult -name "*.mp4" | head -n 1)" & echo $! > mpv_pid.txt
+FSM: new state is 3
+
+
+Exiting... (Quit)
+male: 0.985425 | female: 0.0145751
+agePreds[0] = 0.987039
+agePreds[1] = 0.00740093
+agePreds[2] = 0.000817478
+agePreds[3] = 9.35937e-05
+agePreds[4] = 0.00224428
+agePreds[5] = 0.000571867
+agePreds[6] = 0.00115988
+agePreds[7] = 0.000672887
+Left Section BGR: (45, 43, 61)
+Center Section BGR: (64, 58, 73)
+Right Section BGR: (53, 50, 69)
+face color : 
+cnl = unknown
+cnc = blue
+cnr = unknown
+Left Section BGR: (24, 40, 31)
+Center Section BGR: (22, 35, 28)
+Right Section BGR: (23, 39, 32)
+Male, adult, caucasian, unknown
+male: 0.981813 | female: 0.0181871
+agePreds[0] = 0.912059
+agePreds[1] = 0.0396424
+agePreds[2] = 0.00954206
+agePreds[3] = 0.000811591
+agePreds[4] = 0.0137453
+agePreds[5] = 0.0031203
+agePreds[6] = 0.0182475
+agePreds[7] = 0.00283161
+Left Section BGR: (48, 45, 60)
+Center Section BGR: (68, 60, 72)
+Right Section BGR: (59, 54, 70)
+face color : 
+cnl = blue
+cnc = purple
+cnr = blue
+Left Section BGR: (24, 37, 28)
+Center Section BGR: (19, 32, 25)
+Right Section BGR: (23, 37, 30)
+Male, adult, caucasian, unknown
+ (+) Video --vid=1 (*) (h264 1080x1920 29.970fps)
+ (+) Audio --aid=1 --alang=eng (*) (aac 2ch 44100Hz)
+AO: [pulse] 44100Hz stereo 2ch float
+VO: [gpu] 1080x1920 yuv420p
+male: 0.766076 | female: 0.233924
+agePreds[0] = 0.8273490 (2%) A-V:  0.000
+agePreds[1] = 0.0139554
+agePreds[2] = 0.00440513
+agePreds[3] = 0.0010208
+agePreds[4] = 0.0758982
+agePreds[5] = 0.0179393
+agePreds[6] = 0.0380482
+agePreds[7] = 0.0213837
+Left Section BGR: (45, 44, 61)
+Center Section BGR: (67, 59, 74)
+Right Section BGR: (57, 54, 72)
+face color : 
+cnl = unknown
+cnc = purple
+cnr = unknown
+Left Section BGR: (27, 40, 28)
+Center Section BGR: (28, 39, 29)
+Right Section BGR: (28, 42, 32)
+Male, adult, caucasian, unknown
+male: 0.740526 | female: 0.259474  0.000
+agePreds[0] = 0.5281440 (9%) A-V:  0.000
+agePreds[1] = 0.013474
+agePreds[2] = 0.00948191
+agePreds[3] = 0.00222105
+agePreds[4] = 0.337391
+agePreds[5] = 0.0381179
+agePreds[6] = 0.0552003
+agePreds[7] = 0.0159701
+Left Section BGR: (43, 43, 66)
+Center Section BGR: (66, 60, 82)
+Right Section BGR: (58, 56, 82)
+face color : 
+cnl = brown
+cnc = blue
+cnr = unknown
+Left Section BGR: (23, 40, 32)
+Center Section BGR: (18, 32, 26)
+Right Section BGR: (24, 40, 34)
+Male, adult, caucasian, unknown
+male: 0.915514 | female: 0.0844863  0.000
+agePreds[0] = 0.9858910 (16%) A-V:  0.000
+agePreds[1] = 0.00598811
+agePreds[2] = 0.000891129
+agePreds[3] = 0.000125341
+agePreds[4] = 0.00348694
+agePreds[5] = 0.00106581
+agePreds[6] = 0.00105492
+agePreds[7] = 0.00149733
+Left Section BGR: (37, 36, 59)
+Center Section BGR: (58, 53, 73)
+Right Section BGR: (50, 46, 69)
+face color : 
+cnl = unknown
+cnc = blue
+cnr = unknown
+Left Section BGR: (14, 31, 24)
+Center Section BGR: (20, 35, 28)
+Right Section BGR: (21, 37, 27)
+Male, adult, caucasian, unknown
+male: 0.113508 | female: 0.886492:  0.000
+agePreds[0] = 0.9751860 (23%) A-V:  0.000
+agePreds[1] = 0.0137946
+agePreds[2] = 0.00365041
+agePreds[3] = 0.000159851
+agePreds[4] = 0.00158675
+agePreds[5] = 0.000459418
+agePreds[6] = 0.00406922
+agePreds[7] = 0.00109397
+Left Section BGR: (32, 33, 52)
+Center Section BGR: (54, 50, 67)
+Right Section BGR: (46, 43, 62)
+face color : 
+cnl = unknown
+cnc = blue
+cnr = unknown
+Left Section BGR: (19, 37, 26)
+Center Section BGR: (11, 31, 19)
+Right Section BGR: (21, 39, 27)
+Female, adult, caucasian, unknown
+FSM(PLAY_VIDEO_FILE): sonar.getFail().000
+Monitor: new task is 3 | current task is 2
+MONITOR: task is stop: video
+MONITOR: in GIF
+FSM: new state is 4
+
+
+Exiting... (Quit)
+FSM: new state is 1
+
+FSM(SONAR_DETECTION): camera.getSuccess()
+Camera: new task is 3
+Monitor: new mode is 1 | previous mode is 2
+Monitor: new task is 2 | current task is 2
+ (+) Video --vid=1 (*) (h264 1280x720 59.940fps)
+ (+) Audio --aid=1 --alang=eng (*) (aac 2ch 44100Hz)
+AO: [pulse] 44100Hz stereo 2ch float
+VO: [gpu] 1280x720 yuv420p
+Camera: new task is 116 (6%) A-V:  0.000 Dropped: 5
+AV: 00:00:04 / 00:01:16 (6%) A-V:  0.003 Dropped: 8

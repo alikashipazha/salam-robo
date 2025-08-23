@@ -95,7 +95,8 @@ std::tuple<std::string, std::string, std::string> Camera::processFrame(cv::Mat& 
 
     // if(this->getMode() == DISTANT) {
     //     // اعمال افزایش روشنایی به تصویر
-    //     frame.convertTo(frame, -1, 1, -50);  // افزایش روشنایی
+    //     frame.convertTo(frame, -1, 1, 20);  // افزایش روشنایی
+    // }
     // } else {
     //     frame.convertTo(frame, -1, 1, -20);  // افزایش روشنایی
     // }
@@ -177,7 +178,7 @@ std::string Camera::classifyColor(cv::Vec3b bgr) { //new HERE tabestoon
     
     // red blue green 255 or 0 ?
 
-    if((max_val < 50) || (maxDiff < 10 && max_val <= 100)) {
+    if((max_val < 20) || (maxDiff < 10 && max_val <= 100)) { //max_val < 50
         return "black";
     }
 
@@ -185,10 +186,10 @@ std::string Camera::classifyColor(cv::Vec3b bgr) { //new HERE tabestoon
         return "white";
     }
 
-    // تشخیص رنگ خاکی (Gray)
-    if (v > 90 && s < 40 && v < 150) {  // اگر Value زیاد باشد و Saturation کم باشد ولی Value کمتر از 150
-        return "gray";
-    }
+    // // تشخیص رنگ خاکی (Gray)
+    // if (v > 90 && s < 40 && v < 150) {  // اگر Value زیاد باشد و Saturation کم باشد ولی Value کمتر از 150
+    //     return "gray";
+    // }
 
     // if(maxDiff < 10) {
     //     if(max_val <= 100) {
@@ -264,19 +265,19 @@ std::string Camera::classifyColor(cv::Vec3b bgr) { //new HERE tabestoon
             
         }
     }
-    if(downDiff < 10) {
-        if(max_val == r) {
+    // if(downDiff < 10) {
+    //     if(max_val == r) {
 
-        }
-    }
+    //     }
+    // }
 
     // تشخیص رنگ سیاه (dark color)
-    if (r < 50 && g < 50 && b < 50) {
+    if (r < 30 && g < 30 && b < 30) {
         return "black";
     }
 
     // تشخیص رنگ سفید (light color)
-    if (r > 200 && g > 200 && b > 200) {
+    if (r > 140 && g > 140 && b > 140) {
         return "white";
     }
 
@@ -286,7 +287,7 @@ std::string Camera::classifyColor(cv::Vec3b bgr) { //new HERE tabestoon
     }
 
     // قرمز: رنگ قرمز معمولاً بیشترین مقدار را در R دارد
-    if (r > 120 && g < 80 && b < 80) {
+    if ((r > 120 && g < 80 && b < 80) || (b < 10 && g < 10 && r > 30)) {
         return "red";
     }
 
@@ -301,12 +302,12 @@ std::string Camera::classifyColor(cv::Vec3b bgr) { //new HERE tabestoon
     }
 
     // نارنجی: ترکیب زیاد قرمز و کمی سبز، کم بودن آبی
-    if (r > 150 && g > 100 && b < 80) {
+    if (r > 130 && g > 100 && b < 80) {
         return "orange";
     }
 
     // زرد: ترکیب زیاد قرمز و سبز، کم بودن آبی
-    if (r > 150 && g > 150 && b < 100) {
+    if (r > 100 && g > 100 && b < 80) {
         return "yellow";
     }
 
@@ -517,7 +518,7 @@ void Camera::update() {
             for (int i = 0; i < detectionMat.rows; i++) {
                 float confidence = detectionMat.at<float>(i, 2);
                 // ComposureCounter = 1; //hemaghat
-                if (confidence > CONFIDENCE_THRESHOLD && !((ComposureCounter++)%5)) { //HERE tabestoon 20 mordad
+                if (confidence > CONFIDENCE_THRESHOLD && !((ComposureCounter++)%1)) { //HERE tabestoon 20 mordad
 					// cout << "Camera: face n." << i << " of " << detectionMat.rows << " detected" << endl;
                     int x1 = static_cast<int>(detectionMat.at<float>(i, 3) * frame.cols);
                     int y1 = static_cast<int>(detectionMat.at<float>(i, 4) * frame.rows);
@@ -544,7 +545,7 @@ void Camera::update() {
                         genderNet.setInput(faceBlob);
                         Mat genderPreds = genderNet.forward();
                         cout << "male: " << genderPreds.at<float>(0) << " | female: " << genderPreds.at<float>(1) << endl;
-                        int genderIdx = genderPreds.at<float>(1) >= 0.01 ? 1 : 0; //genderPreds.at<float>(1) ? 0 : 1;
+                        int genderIdx = genderPreds.at<float>(1) >= 0.6 ? 1 : 0; //genderPreds.at<float>(1) ? 0 : 1;
                         this->faceFeatures.gender = genderList[genderIdx];
 
                         // تشخیص سن
@@ -557,11 +558,17 @@ void Camera::update() {
                         for (int i = 0; i < 8; i++) {
                             std::cout << "agePreds[" << i << "] = " << agePreds.at<float>(i) << std::endl;
                         }
-                        if(agePreds.at<float>(4) + agePreds.at<float>(5) + agePreds.at<float>(6) + agePreds.at<float>(7) > 0.5) {
+                        if(agePreds.at<float>(0) > 0.3) {
+                            this->faceFeatures.age = "adult";
+                        } else if(agePreds.at<float>(4) + agePreds.at<float>(5) + agePreds.at<float>(6) + agePreds.at<float>(7) >
+                             agePreds.at<float>(1) + agePreds.at<float>(2) + agePreds.at<float>(3)) {//0.5) {
                             // float summedPreds = agePreds.at<float>(3) + agePreds.at<float>(4) + agePreds.at<float>(5) 
                             //                     + agePreds.at<float>(6) + agePreds.at<float>(7);
                             // float oldPreds = agePreds.at<float>(6) + agePreds.at<float>(7);
-                            if((agePreds.at<float>(6) + agePreds.at<float>(7)) > (agePreds.at<float>(3) + agePreds.at<float>(4) + agePreds.at<float>(5))) { //oldPreds/summedPreds > 0.6) {
+                            if((agePreds.at<float>(3) + agePreds.at<float>(4) + agePreds.at<float>(5)) > 0.4) {
+                                this->faceFeatures.age = "adult";
+                            } else if((agePreds.at<float>(6) + agePreds.at<float>(7)) > 
+                                (agePreds.at<float>(3) + agePreds.at<float>(4) + agePreds.at<float>(5))) { //oldPreds/summedPreds > 0.6) {
                                 this->faceFeatures.age = "old";
                             } else {
                                 this->faceFeatures.age = "adult";
@@ -574,7 +581,7 @@ void Camera::update() {
                             float summedPreds = agePreds.at<float>(0) + agePreds.at<float>(1) + agePreds.at<float>(2)
                                                 + agePreds.at<float>(3) + agePreds.at<float>(4) + agePreds.at<float>(5);
                             // float kidPreds = agePreds.at<float>(0) + agePreds.at<float>(1); //+ agePreds.at<float>(2);
-                            if((agePreds.at<float>(2)/summedPreds > 0.3 && probablyKid) 
+                            if(((agePreds.at<float>(1)/summedPreds > 0.3 || agePreds.at<float>(2)/summedPreds > 0.3) && probablyKid) 
                                 || (agePreds.at<float>(0) + agePreds.at<float>(1))/summedPreds > 0.6) { //oldPreds/summedPreds > 0.6) {
                                 this->faceFeatures.age = "kid";
                             } else {
@@ -608,17 +615,17 @@ void Camera::update() {
                         auto [colorNameLeft, colorNameCenter, colorNameRight] = processFrame(frame, roiFace);
                         cout << "face color : \ncnl = " << colorNameLeft << "\ncnc = " << colorNameCenter << "\ncnr = " << colorNameRight << endl;
                         int countBlack = 0;
-                        if(colorNameLeft == "black" || colorNameLeft == "brown") {
+                        if(colorNameLeft == "black") { // || colorNameLeft == "brown" || colorNameLeft == "red") {
                             countBlack++;
                         }
-                        if(colorNameCenter == "black" || colorNameCenter == "brown") {
+                        if(colorNameCenter == "black") { // || colorNameCenter == "brown" || colorNameCenter == "red") {
                             countBlack++;
                         }
-                        if(colorNameRight == "black" || colorNameRight == "brown") {
+                        if(colorNameRight == "black") { // || colorNameRight == "brown" || colorNameRight == "red") {
                             countBlack++;
                         }
                         
-                        if(countBlack > 3) {
+                        if(countBlack > 2) {
                             this->faceFeatures.race = "black";
                         } else {
                             this->faceFeatures.race = "caucasian";
@@ -700,9 +707,9 @@ void Camera::update() {
                             countOrangeHair++;
                         }
                         
-                        if(countYellowHair > 1) {
+                        if(countYellowHair > 0) {
                             this->faceFeatures.hairColor = "blonde";
-                        } else if(countOrangeHair > 1) {
+                        } else if(countOrangeHair > 0) {
                             this->faceFeatures.hairColor = "ginger";
                         } else if(countBlackHair > 1) {
                             this->faceFeatures.hairColor = "black_brown";
@@ -711,10 +718,11 @@ void Camera::update() {
                         } else {
                             this->faceFeatures.hairColor = "unknown";
                         }
-
+                        
                         // متن روی تصویر
                         string label = this->faceFeatures.gender + ", " + this->faceFeatures.age + ", " + this->faceFeatures.race
-                                        + ", " + this->faceFeatures.hairColor + ", " + this->faceFeatures.eyesColor;
+                                        + ", " + this->faceFeatures.hairColor;
+                        cout << label << endl;
                         putText(frame, label, Point(x1, y1 - 10),
                                 FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2); //HERE tabestoon
                         this->success = true;
@@ -785,6 +793,7 @@ void Camera::update() {
                         // cout << this->getClothColor() << endl;
                         // متن روی تصویر
                         string label = this->clothColor;
+                        cout << label << endl;
                         putText(frame, label, Point(x1, y1 - 10),
                                 FONT_HERSHEY_SIMPLEX, 0.7, Scalar(255, 0, 0), 2);
                     }
